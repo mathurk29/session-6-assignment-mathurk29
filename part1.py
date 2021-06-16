@@ -9,7 +9,7 @@ len(deck)
 
 
 def create_deck_of_cards() -> list:
-    ''' This function returns a list of tuples that represents the 52 cards in a deck of cards. '''
+    '''This function returns a list of tuples that represents the 52 cards in a deck of cards'''
 
     vals = ['ace', '2', '3', '4', '5', '6', '7',
             '8', '9', '10', 'jack', 'queen', 'king']
@@ -134,7 +134,7 @@ def play_poker(first_hand, second_hand):
 
     val_int = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
     poker_hands = {"royal_flush": 10, "straight_flush": 9, "four_of_a_kind": 8, "full_house": 7,
-                   "flush": 6, "straight": 5, "three_of_a_kind": 4, "two_pair": 3, "one_pair": 2, "high_card": 1}
+                    "flush": 6, "straight": 5, "three_of_a_kind": 4, "two_pair": 3, "one_pair": 2, "high_card": 1}
 
     length_hand = len(first_hand)
 
@@ -155,10 +155,10 @@ def play_poker(first_hand, second_hand):
 
     for _, val in first_hand:
         if val not in ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'jack', 'queen', 'king', 'ace']:
-            raise ValueError("Woah! Don't you know cards?")
+            raise ValueError("Woah! Don't you know cards.")
     for _, val in second_hand:
         if val not in ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'jack', 'queen', 'king', 'ace']:
-            raise ValueError("Woah! Don't you know cards?")
+            raise ValueError("Woah! Don't you know cards.")
 
     # get the modified hands for the input hands
     mod_player1 = convert_faces_to_numbers(first_hand)
