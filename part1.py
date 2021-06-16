@@ -48,7 +48,7 @@ def convert_faces_to_numbers(hand):
     return result
 
 
-def find_hand_type(hand, val_int, cards_in_hand):
+def find_hand_type(hand, val_int, sizeof_hand):
 
     # sorted hand to manipulate values in hand
     sorted_hand = sorted([y for x, y in hand])
@@ -58,7 +58,7 @@ def find_hand_type(hand, val_int, cards_in_hand):
 
         # check for royal flush
 
-        if sum([y for x, y in hand]) == sum(val_int[-cards_in_hand:]):
+        if sum([y for x, y in hand]) == sum(val_int[-sizeof_hand:]):
             return "royal_flush"
         # check for straight_flush
         elif sorted_hand == list(range(min(sorted_hand), max(sorted_hand)+1)):
@@ -79,16 +79,16 @@ def find_hand_type(hand, val_int, cards_in_hand):
     if unique_values > 1:
         mostcommon_second = most_common_values[1][1]
 
-    if cards_in_hand == 5 and mostcommon_first == 3 and mostcommon_second == 2:
+    if sizeof_hand == 5 and mostcommon_first == 3 and mostcommon_second == 2:
         return "full_house"
 
-    if cards_in_hand in [4, 5] and mostcommon_first == 4:
+    if sizeof_hand in [4, 5] and mostcommon_first == 4:
         return "four_of_a_kind"
 
     if mostcommon_first == 3:
         return "three_of_a_kind"
 
-    if cards_in_hand in [4, 5] and mostcommon_first == 2 and mostcommon_second == 2:
+    if sizeof_hand in [4, 5] and mostcommon_first == 2 and mostcommon_second == 2:
         return "two_pair"
 
     if (len(set([x for x, y in hand])) > 1) and (sorted_hand == list(range(min(sorted_hand), max(sorted_hand)+1))):

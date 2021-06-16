@@ -26,7 +26,7 @@ def test_session6_play_poker_no_args():
         part1.play_poker()
 
 
-def test_session6_play_poker_cards_in_hand_limit():
+def test_session6_play_poker_sizeof_hand_limit():
     
     first_hand = [('spades', 'ace'), ('hearts', 'king')]
     second_hand = [('hearts', '4'), ('spades', '7'), ('spades', '8'), ('clubs', '7'), ('clubs', '2')]
