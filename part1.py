@@ -1,12 +1,11 @@
 from collections import Counter
-# 1
+###################### 1.1 ######################
 
-deck = [{x: y} for x in ['spades', 'clubs', 'hearts', 'diamonds'] for y in [
+single_exp_generate_deck = [{x: y} for x in ['spades', 'clubs', 'hearts', 'diamonds'] for y in [
     'ace', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'jack', 'queen', 'king']]
-len(deck)
 
-# 2
 
+####################### 1.2 ######################
 
 def create_deck_of_cards() -> list:
     '''This function returns a list of tuples that represents the 52 cards in a deck of cards'''
@@ -17,133 +16,157 @@ def create_deck_of_cards() -> list:
     suits = ['spades', 'clubs', 'hearts', 'diamonds']
 
     deck = []
-    for v in vals:
-        for s in suits:
+    for s in suits:
+        for v in vals:
             deck.append({s: v})
     return deck
 
 
-len(create_deck_of_cards())
-
-
-# 3
-
+####################### 1.3 ######################
 
 def convert_faces_to_numbers(hand):
+    '''  modify cards of input hands to integral values for easy computation of their comparisons '''
     result = []
     for x, y in hand:
         if y == 'jack':
-            y = 11
+            y = int(11)
         elif y == 'queen':
-            y = 12
+            y = int(12)
         elif y == 'king':
-            y = 13
+            y = int(13)
+        # Marking Ace as 14 as it is superior to King(13) in Poker
         elif y == 'ace':
-            y = 14
+            y = int(14)
         else:
             y = int(y)
         result.append((x, y))
 
-    # converted faces to numbers
     return result
 
 
-def find_hand_type(hand, val_int, sizeof_hand):
+def find_hand_type(hand: list):
+    ''' Returns the type of hand'''
 
-    # sorted hand to manipulate values in hand
+    # sorting hand for easy calculations
     sorted_hand = sorted([y for x, y in hand])
 
-    # check for hands where all cards belong to same suit
+    # check if all cards of the hand belong to same suit
     if len(set([x for x, y in hand])) == 1:
 
-        # check for royal flush
-
-        if sum([y for x, y in hand]) == sum(val_int[-sizeof_hand:]):
+        # 10 to Ace, all of same suit
+        if sum([y for x, y in hand]) == sum(range(10, 15)[-len(hand):]):
             return "royal_flush"
-        # check for straight_flush
+
+        # consecutive ranks, all of same suit
         elif sorted_hand == list(range(min(sorted_hand), max(sorted_hand)+1)):
             return "straight_flush"
+
+        # inconsecutive ranks but all of same suit
         else:
             return "flush"
 
-    occurrences = Counter([y for x, y in hand])
+    frequency = Counter([y for x, y in hand])
+    length_of_unique_ranks = len(frequency)
+    most_common_ranks = frequency.most_common()
 
-    # how many distinct values exist
-    unique_values = len(occurrences)
+    # first most common
+    mostcommon_first = most_common_ranks[0][1]
+    if length_of_unique_ranks > 1:
+        mostcommon_second = most_common_ranks[1][1]
 
-    most_common_values = occurrences.most_common(unique_values)
-
-    # first most common count
-    mostcommon_first = most_common_values[0][1]
-    # second most common count if it exists
-    if unique_values > 1:
-        mostcommon_second = most_common_values[1][1]
-
-    if sizeof_hand == 5 and mostcommon_first == 3 and mostcommon_second == 2:
+    # three cards of same rank and two cards of some other rank
+    if len(hand) == 5 and mostcommon_first == 3 and mostcommon_second == 2:
         return "full_house"
 
-    if sizeof_hand in [4, 5] and mostcommon_first == 4:
+    # four cards of one rank
+    if len(hand) >= 4 and mostcommon_first == 4:
         return "four_of_a_kind"
 
+    # three cards of one rank
     if mostcommon_first == 3:
         return "three_of_a_kind"
 
-    if sizeof_hand in [4, 5] and mostcommon_first == 2 and mostcommon_second == 2:
+    # two cards of one rank and two cards of another rank
+    if len(hand) >= 4 and mostcommon_first == 2 and mostcommon_second == 2:
         return "two_pair"
 
-    if (len(set([x for x, y in hand])) > 1) and (sorted_hand == list(range(min(sorted_hand), max(sorted_hand)+1))):
+    #  sequential ranks and not all of same suit
+    if (sorted_hand == list(range(min(sorted_hand), max(sorted_hand)+1))) and (len(set([x for x, y in hand])) > 1):
         return "straight"
 
+    # two cards of one rank
     if mostcommon_first == 2:
         return "one_pair"
+
+    # no matching ranks among cards
     else:
         return "high_card"
 
 
-def find_winner(poker_hands, modified_hand_1, type_1, modified_hand_2, type_2):
+def compare_hands(modified_first_hand: list, type_first_hand: str, modified_second_hand, type_second_hand: str):
 
-    if type_1 != type_2:
-        if poker_hands[type_1] > poker_hands[type_2]:
-            return modified_hand_1
-        else:
-            return modified_hand_2
+    hands_rank_dict = \
+        {
+            "high_card": 1,
+            "one_pair": 2,
+            "two_pair": 3,
+            "three_of_a_kind": 4,
+            "straight": 5,
+            "flush": 6,
+            "full_house": 7,
+            "four_of_a_kind": 8,
+            "straight_flush": 9,
+            "royal_flush": 10,
+        }
+
+    if type_first_hand != type_second_hand:
+
+        return modified_first_hand if hands_rank_dict[type_first_hand] > hands_rank_dict[type_second_hand] else modified_second_hand
+
     else:
-        if type_1 in ['royal_flush', 'straight_flush', 'flush', 'straight']:
-            return modified_hand_2 if sum([y for x, y in modified_hand_1]) > sum([y for x, y in modified_hand_2]) else modified_hand_2
-        elif type_1 in ['four_of_a_kind', 'three_of_a_kind']:
-            list_1 = [y for x, y in modified_hand_1]
-            list_2 = [y for x, y in modified_hand_2]
-            return modified_hand_1 if max(set(list_1), key=list_1.count) > max(set(list_2), key=list_2.count) else modified_hand_2
-        elif type_1 == 'full_house':
-            return modified_hand_1 if sum(set([y for x, y in modified_hand_1])) > sum(set([y for x, y in modified_hand_2])) else modified_hand_2
-        elif type_1 in ["two_pair", "one_pair"]:
-            list_1 = [y for x, y in modified_hand_1]
-            set_1 = set(list_1)
-            list_2 = [y for x, y in modified_hand_2]
-            set_2 = set(list_2)
-            return modified_hand_1 if sum([x for x in set_1 if list_1.count(x) == 2]) > sum([x for x in set_2 if list_2.count(x) == 2]) else modified_hand_2
-        elif type_1 == "high_card":
-            return modified_hand_1 if max([y for x, y in modified_hand_1]) > max([y for x, y in modified_hand_2]) else modified_hand_2
+        ranks_hand1 = [y for x, y in modified_first_hand]
+        ranks_hand2 = [y for x, y in modified_second_hand]
+
+        if type_first_hand in ['royal_flush', 'straight_flush', 'flush', 'straight']:
+            return modified_first_hand if max(ranks_hand1) > max(ranks_hand2) else modified_second_hand
+
+        elif type_first_hand in ['four_of_a_kind', 'three_of_a_kind']:
+            # compare the highest card of the quad/triplet
+            return modified_first_hand if max(set(ranks_hand1), key=ranks_hand1.count) > max(set(ranks_hand2), key=ranks_hand2.count) else modified_second_hand
+
+        elif type_first_hand == 'full_house':
+            # first compare the triplets
+            if max(set(ranks_hand1)) > max(set(ranks_hand2)):
+                return modified_first_hand
+            # triplets are deuce, so now compare pairs
+            if min(set(ranks_hand1)) > min(set(ranks_hand2)):
+                return modified_first_hand
+            else:
+                return modified_second_hand
+
+        elif type_first_hand in ["two_pair", "one_pair"]:
+            # compare the pair of higher rank
+            if max([x for x in ranks_hand1 if ranks_hand1.count(x) == 2]) > max([x for x in ranks_hand2 if ranks_hand2.count(x) == 2]):
+                return modified_first_hand
+            # compare the rank of other only for two_pair case
+            if type_first_hand == "two_pair" and min([x for x in ranks_hand1 if ranks_hand1.count(x) == 2]) > min([x for x in ranks_hand2 if ranks_hand2.count(x) == 2]):
+                return modified_first_hand
+            # compare kickers
+            else:
+                return modified_first_hand if [x for x in ranks_hand1 if ranks_hand1.count(x) == 1][0] > [x for x in ranks_hand2 if ranks_hand2.count(x) == 1][0] else modified_second_hand
+
+        elif type_first_hand == "high_card":
+            return modified_first_hand if max(ranks_hand1) > max(ranks_hand2) else modified_second_hand
+
+        else:
+            raise Exception(
+                "There is problem either in the input validation or hand comparisons.")
 
 
-def play_poker(first_hand, second_hand):
-
-    vals = ['2', '3', '4', '5', '6', '7', '8',
-            '9', '10', 'jack', 'queen', 'king', 'ace']
-    suits = ['spades', 'clubs', 'hearts', 'diamonds']
-
-    val_int = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
-    poker_hands = {"royal_flush": 10, "straight_flush": 9, "four_of_a_kind": 8, "full_house": 7,
-                    "flush": 6, "straight": 5, "three_of_a_kind": 4, "two_pair": 3, "one_pair": 2, "high_card": 1}
-
-    length_hand = len(first_hand)
+def play_poker(first_hand: list, second_hand: list) -> tuple:
+    ''' Wrapper function which validate, transform and compare hands. Returns the winner hand. '''
 
     # Validations
-
-    if not (3 <= length_hand <= 5):
-        raise ValueError(
-            "no of cards in a hand should be between 3 and 5 inclusive")
-
     for suit, _ in first_hand:
         if suit not in ['spades', 'clubs', 'hearts', 'diamonds']:
             raise ValueError(
@@ -151,26 +174,33 @@ def play_poker(first_hand, second_hand):
     for suit, _ in second_hand:
         if suit not in ['spades', 'clubs', 'hearts', 'diamonds']:
             raise ValueError(
-                "suit should be one of these: spades , clubs , hearts , diamonds")
-
+                "suit should be one of these: spades , clubs , hearts , diamonds but I found " + suit)
     for _, val in first_hand:
         if val not in ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'jack', 'queen', 'king', 'ace']:
-            raise ValueError("Woah! Don't you know cards.")
+            raise ValueError(
+                "Provide card ranks as strings. For face values, supply lowercase strings. For first hand I got: " + val)
     for _, val in second_hand:
         if val not in ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'jack', 'queen', 'king', 'ace']:
-            raise ValueError("Woah! Don't you know cards.")
+            raise ValueError(
+                "Provide card ranks as strings. For face values, supply lowercase strings. For second hand I got: " + val)
+    if len(first_hand) not in (3, 4, 5) or len(second_hand) not in (3, 4, 5):
+        raise ValueError(
+            'Length of a hand is either less than 3 or greater than 5')
+    if set(first_hand).intersection(set(second_hand)) != set():
+        raise ValueError(
+            "Same card present in both hands. Casino Security on the way!")
 
-    # get the modified hands for the input hands
-    mod_player1 = convert_faces_to_numbers(first_hand)
-    mod_player2 = convert_faces_to_numbers(second_hand)
+    # convert cards of input hands to integral values for easy computation of their comparisons
+    modified_first_hand = convert_faces_to_numbers(first_hand)
+    modified_second_hand = convert_faces_to_numbers(second_hand)
 
     # find the type of each hand
-    type_1 = find_hand_type(mod_player1, val_int, length_hand)
-    type_2 = find_hand_type(mod_player2, val_int, length_hand)
+    type_first_hand = find_hand_type(modified_first_hand)
+    type_second_hand = find_hand_type(modified_second_hand)
 
     # find the winner hand
-    winner_hand = find_winner(poker_hands, mod_player1,
-                        type_1, mod_player2, type_2)
+    wining_hand = compare_hands(
+        modified_first_hand, type_first_hand, modified_second_hand, type_second_hand)
 
-    # return the original winner hand
-    return [type_1, first_hand] if winner_hand == mod_player1 else [type_2, second_hand]
+    # return the winning hand with it's type
+    return [type_first_hand, first_hand] if wining_hand == modified_first_hand else [type_second_hand, second_hand]
